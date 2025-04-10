@@ -7,16 +7,16 @@ model_args:
 
 data_args:
   train_data:
-    # -
-    #   dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
-    #   dataset_options:
-    #     jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/hq/train/"
-    #     jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_hq/dataset/production/"
-    #     # train_size: 100000
-    #     test_size: 1000
-    #     max_length: 512
-    #     pick_top_100: 7
-    #     slice_top_100_k: 50
+    -
+      dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
+      dataset_options:
+        jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/hq/train/"
+        jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_hq/dataset/production/"
+        # train_size: 100000
+        test_size: 1000
+        max_length: 512
+        pick_top_100: 7
+        slice_top_100_k: 50
     - 
       dataset_class: yart.custom_dataset.hpprc_emb_scores.HpprcEmbScoresDataset
       train_data:
@@ -33,8 +33,6 @@ data_args:
         - subset: auto-wiki-qa-nemotron
           # n: 40000
           target_score_keys: ["ruri-reranker-large"]
-        - subset: jqara
-          target_score_keys: ["ruri-reranker-large"]
         - subset: quiz-works
           target_score_keys: ["ruri-reranker-large"]
         - subset: quiz-no-mori
@@ -44,33 +42,31 @@ data_args:
           target_score_keys: ["ruri-reranker-large"]
         - subset: mkqa
           target_score_keys: ["ruri-reranker-large"]
-        - subset: mmarco
-          target_score_keys: ["ruri-reranker-large"]
-    # -
-    #   dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
-    #   dataset_options:
-    #     dataset_name: msmarco-ja
-    #     hard_positives: true
-    #     target_model_name: "japanese-splade-base-v1_5"
-    # -
-    #   dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
-    #   dataset_options:
-    #     hard_positives: true
-    #     target_model_name: "japanese-splade-base-v1_5"
-    # -
-    #   dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
-    #   dataset_options:
-    #     dataset_name: mqa
-    #     hard_positives: false
-    #     target_model_name: "japanese-splade-base-v1_5"
-    # -
-    #   dataset_class: yart.custom_dataset.mmarco.MMarcoHardNegatives
-    #   train_data:
-    #     reranker: "bge-reranker-v2-m3"
-    #     lang: "english"
+    -
+      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+      dataset_options:
+        dataset_name: msmarco-ja
+        hard_positives: true
+        target_model_name: "japanese-splade-base-v1_5"
+    -
+      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+      dataset_options:
+        hard_positives: true
+        target_model_name: "japanese-splade-base-v1_5"
+    -
+      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+      dataset_options:
+        dataset_name: mqa
+        hard_positives: false
+        target_model_name: "japanese-splade-base-v1_5"
+    -
+      dataset_class: yart.custom_dataset.mmarco.MMarcoHardNegatives
+      train_data:
+        reranker: "bge-reranker-v2-m3"
+        lang: "english"
 
 training_args:
-  output_dir: "./outputs/reranker-modernbert-ja-30m-emb"
+  output_dir: "./outputs/reranker-modernbert-ja-30m-all"
   overwrite_output_dir: true
   
   # Training parameters
