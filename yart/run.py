@@ -86,15 +86,17 @@ def main() -> None:
     # Set seed for reproducibility
     seed_everything(training_args.seed)
 
+    training_args.remove_unused_columns = False  # override
+
     # Setup wandb if not in debug mode
     if (
         not run_args.debug
         and training_args.report_to
         and "wandb" in training_args.report_to
     ):
-        setup_wandb("cross-encoder-ranker")
+        setup_wandb("cross-encoder-reranker")
         wandb.init(
-            project="cross-encoder-ranker",
+            project="cross-encoder-reranker",
             name=os.path.basename(output_dir),
         )
     else:

@@ -77,8 +77,10 @@ class CrossEncoderModel(nn.Module):
 
             # Add loss to outputs
             outputs.loss = loss
+        else:
+            loss = None
 
-        return outputs
+        return loss, outputs
 
     def save_pretrained(self, output_dir: str):
         """
@@ -111,7 +113,9 @@ class RankerTrainer(Trainer):
         self.args: RankerTrainingArguments = args
         self.log_metrics = LogMetrics()
 
-    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+    def compute_loss(
+        self, model: CrossEncoderModel, inputs, return_outputs=False, **kwargs
+    ):
         """
         Compute loss from model outputs.
 
@@ -123,15 +127,16 @@ class RankerTrainer(Trainer):
         Returns:
             Loss value or tuple of (loss, outputs)
         """
-        outputs = model(inputs)
-        loss = outputs.loss
+        loss, outputs = model.forward(inputs)
 
         # Log additional metrics if available
         # if hasattr(outputs, "logits"):
         #     self.log_metrics.add("logits_mean", outputs.logits.mean())
         #     self.log_metrics.add("logits_std", outputs.logits.std())
 
-        self.log_metrics.add("loss", loss)
+        # print(f"Loss: {loss}")
+
+        self.log_metrics.add("loss", loss)  # type: ignore
 
         return (loss, outputs) if return_outputs else loss
 
