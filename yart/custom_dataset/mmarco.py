@@ -18,7 +18,7 @@ HADR_NEGATIVE_SCORE_DS = "hotchpotch/mmarco-hard-negatives-reranker-score"
 
 NEG_SCORE_TH = 0.3
 POS_SCORE_TH = 0.7
-NEG_FILTER_COUNT = 8
+NEG_FILTER_COUNT = 15
 
 
 def _map_filter_score(example, neg_score_th: float, pos_score_th: float):
