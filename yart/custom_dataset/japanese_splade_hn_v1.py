@@ -16,10 +16,10 @@ DS_SPIT = "train"
 
 NEG_SCORE_TH = 0.3
 POS_SCORE_TH = 0.7
-NEG_FILTER_COUNT = 7
+NEG_FILTER_COUNT = 15
 NEG_POS_SCORE_TH = 0.95
 
-TOP_100_SAMPLING_COUNT = 4  # top100 から hard negative としてサンプリングする数
+TOP_100_SAMPLING_COUNT = 8  # top100 から hard negative としてサンプリングする数
 
 
 def _map_score_with_hard_positives(
