@@ -19,7 +19,7 @@ data_args:
         slice_top_100_k: 50
 
 training_args:
-  output_dir: "./outputs/reranker-modernbert-ja-30m"
+  output_dir: "./outputs/reranker-modernbert-ja-30m-500k-bce"
   overwrite_output_dir: true
   
   # Training parameters
