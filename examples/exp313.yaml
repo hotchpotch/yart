@@ -1,5 +1,5 @@
 # Example configuration for YART (Your Another Reranker Trainer)
-
+# 500k, bce
 model_args:
   model_name_or_path: "sbintuitions/modernbert-ja-30m"
   classifier_dropout: 0.0
@@ -19,7 +19,8 @@ data_args:
         slice_top_100_k: 50
 
 training_args:
-  output_dir: "./outputs/reranker-modernbert-ja-30m-500k-bce"
+  # output_dir: "./outputs/reranker-modernbert-ja-30m-500k-bce"
+  output_dir: "./outputs/exp313"
   overwrite_output_dir: true
   
   # Training parameters
