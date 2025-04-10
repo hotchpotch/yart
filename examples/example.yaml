@@ -38,7 +38,7 @@ training_args:
   loss_name: "cross_entropy"  # Options: cross_entropy, mse, margin_ranking_loss
   
   # Logging and saving
-  logging_steps: 100
+  logging_steps: 1 # debug
   save_steps: 100000  # Set to a large number to disable intermediate saving
   save_total_limit: 2
   

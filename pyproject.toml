@@ -22,3 +22,6 @@ dependencies = [
 dev = [
     "ipykernel>=6.29.5",
 ]
+
+[tool.setuptools]
+packages = ["yart"]

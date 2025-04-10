@@ -61,6 +61,9 @@ class RankerTrainingArguments(TrainingArguments):
     neg_shuffle: bool = field(
         default=False, metadata={"help": "Shuffle negative examples during training"}
     )
+    disable_tqdm: bool = field(
+        default=False, metadata={"help": "Disable tqdm progress bar"}
+    )
 
 
 @dataclass

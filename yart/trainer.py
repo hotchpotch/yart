@@ -5,11 +5,10 @@ Trainer class for cross-encoder models.
 
 import logging
 import os
-from typing import Dict
 
 import torch
 import torch.nn as nn
-from transformers import Trainer, TrainerCallback
+from transformers import Trainer
 
 # from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 from .arguments import RankerTrainingArguments
@@ -137,28 +136,22 @@ class RankerTrainer(Trainer):
         # print(f"Loss: {loss}")
 
         self.log_metrics.add("loss", loss)  # type: ignore
-
         return (loss, outputs) if return_outputs else loss
 
-    def log(self, logs: Dict[str, float]) -> None:
-        """
-        Log metrics.
-
-        Args:
-            logs: Dictionary of metrics to log
-        """
-        # Add step and epoch information
+    def log(self, logs: dict[str, float], start_time: float | None = None) -> None:
         logs["step"] = self.state.global_step
         if self.state.epoch is not None:
             logs["epoch"] = round(self.state.epoch, 2)
 
-        # Add collected metrics
-        metrics = self.log_metrics.mean()
+        current_metrics = self.log_metrics.mean()
         self.log_metrics.clear()
-        logs.update(metrics)
+        logs.update(current_metrics)
 
-        # Call parent log method
-        super().log(logs)
+        output = {**logs, "step": self.state.global_step}
+        self.state.log_history.append(output)
+        self.control = self.callback_handler.on_log(
+            self.args, self.state, self.control, logs
+        )
 
     def _save(self, output_dir: str, state_dict=None):
         """
@@ -190,25 +183,3 @@ class RankerTrainer(Trainer):
 
         # Save training arguments
         torch.save(self.args, os.path.join(output_dir, "training_args.bin"))
-
-
-class MetricsCallback(TrainerCallback):
-    """
-    Callback for collecting metrics during training.
-    """
-
-    def __init__(self):
-        self.metrics = LogMetrics()
-
-    def on_log(self, args, state, control, logs=None, **kwargs):
-        """
-        Collect metrics on log.
-
-        Args:
-            args: Training arguments
-            state: Training state
-            control: Training control
-            logs: Metrics to log
-        """
-        if logs:
-            self.metrics.add_dict(logs)
