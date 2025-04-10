@@ -39,7 +39,7 @@ class GotchaDataset(DatasetForCrossEncoder):
         self.args = args
         self.train_group_size = args.dataset_options.get("train_group_size", 16)
         self.max_length = args.max_length
-        self.shuffle_ds = args.shuffle_ds
+        # self.shuffle_ds = args.shuffle_ds
 
         # Load dataset if not provided
         if dataset is None:

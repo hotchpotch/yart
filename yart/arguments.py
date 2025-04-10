@@ -65,41 +65,30 @@ class RankerTrainingArguments(TrainingArguments):
 
 @dataclass
 class DataArguments:
-    """
-    Arguments pertaining to what data we are going to input our model for training and eval.
-    """
-
     train_data: Any = field(
         default=None, metadata={"help": "Path or hf dataset to corpus"}
-    )
-    train_size: Optional[int] = field(
-        default=None, metadata={"help": "Number of training examples to use"}
-    )
-    test_size: int = field(
-        default=1000, metadata={"help": "Number of test examples to use"}
-    )
+    )  # type: ignore
+    train_group_size: int = field(default=16)
+    train_max_positive_size: int = field(default=1)
     max_length: int = field(
         default=512,
         metadata={
-            "help": "The maximum total input sequence length after tokenization for input text."
+            "help": "The maximum total input document length after tokenization for input text. "
         },
     )
-    dataset_options: Dict[str, Any] = field(
+    max_query_length: int = field(
+        default=64,
+        metadata={
+            "help": "The maximum total input query length after tokenization for input text."
+        },
+    )
+    dataset_options: dict = field(
         default_factory=dict, metadata={"help": "Additional options for the dataset"}
     )
-    shuffle_ds: bool = field(
-        default=True, metadata={"help": "Shuffle dataset before training"}
-    )
-    target_ds: Optional[Dict[str, Optional[int]]] = field(
-        default=None,
-        metadata={"help": "Target datasets to use with optional sample sizes"},
-    )
-    pick_top_100: int = field(
-        default=0, metadata={"help": "Number of negatives to pick from top 100 results"}
-    )
-    slice_top_100_k: int = field(
-        default=50, metadata={"help": "Start index for slicing top 100 IDs"}
-    )
+
+    def __post_init__(self):
+        # validation
+        pass
 
 
 @dataclass

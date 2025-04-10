@@ -44,14 +44,14 @@ class JLaWIRDataset(DatasetForCrossEncoder):
             "jlawir_score_ds_path", "/path/to/japanese-ir-qa-large/hard_negs/dataset/"
         )
 
-        self.train_size = args.train_size
-        self.test_size = args.test_size
         self.random_seed = args.dataset_options.get("random_seed", 42)
-        self.slice_top_100_k = args.slice_top_100_k
-        self.pick_top_100 = args.pick_top_100
+        self.train_size = args.dataset_options.get("train_size", None)
+        self.test_size = args.dataset_options.get("test_size", 1000)
+        self.slice_top_100_k = args.dataset_options.get("slice_top_100_k", 50)
+        self.pick_top_100 = args.dataset_options.get("pick_top_100", 0)
 
         # Train group size is the total number of examples per group
-        self.train_group_size = args.dataset_options.get("train_group_size", 16)
+        self.train_group_size = args.train_group_size
         self.total_negs = self.train_group_size - 1
         self.pick_top_1000 = self.total_negs - self.pick_top_100
 

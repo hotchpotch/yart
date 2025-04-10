@@ -56,10 +56,10 @@ class DatasetForCrossEncoder(TorchDataset):
         self.args = args
         self.total_len = len(self.dataset)
         self.max_length = args.max_length
-        self.shuffle_ds = args.shuffle_ds
+        # self.shuffle_ds = args.shuffle_ds
 
-        if self.shuffle_ds:
-            self.dataset = self.dataset.shuffle(seed=42)
+        # if self.shuffle_ds:
+        #     self.dataset = self.dataset.shuffle(seed=42)
 
     def load_dataset(self, target_name: str) -> Dataset:
         """
@@ -217,4 +217,8 @@ def create_dateset_from_args(
             else:
                 raise ValueError(f"Invalid type {target_train_data}")
         target_ds = torch.utils.data.ConcatDataset(target_ds_list)
+    else:
+        raise ValueError(
+            f"Invalid type {type(train_data)}, expected str or list of str"
+        )
     return target_ds  # type: ignore

@@ -7,21 +7,19 @@ model_args:
 
 data_args:
   train_data:
-    dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
-    dataset_options:
-      jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/hq/train/"
-      jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_hq/dataset/production/"
-      train_group_size: 16
-      random_seed: 42
-  train_size: 500000
-  test_size: 1000
-  max_length: 512
-  pick_top_100: 7
-  slice_top_100_k: 50
-  shuffle_ds: true
+    -
+      dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
+      dataset_options:
+        jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/hq/train/"
+        jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_hq/dataset/production/"
+        train_size: 500000
+        test_size: 1000
+        max_length: 512
+        pick_top_100: 7
+        slice_top_100_k: 50
 
 training_args:
-  output_dir: "./outputs/ranker-model"
+  output_dir: "./outputs/reranker-model-example"
   overwrite_output_dir: true
   
   # Training parameters

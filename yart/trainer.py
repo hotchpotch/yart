@@ -111,7 +111,7 @@ class RankerTrainer(Trainer):
         self.args: RankerTrainingArguments = args
         self.log_metrics = LogMetrics()
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         """
         Compute loss from model outputs.
 
@@ -127,9 +127,9 @@ class RankerTrainer(Trainer):
         loss = outputs.loss
 
         # Log additional metrics if available
-        if hasattr(outputs, "logits"):
-            self.log_metrics.add("logits_mean", outputs.logits.mean())
-            self.log_metrics.add("logits_std", outputs.logits.std())
+        # if hasattr(outputs, "logits"):
+        #     self.log_metrics.add("logits_mean", outputs.logits.mean())
+        #     self.log_metrics.add("logits_std", outputs.logits.std())
 
         self.log_metrics.add("loss", loss)
 
