@@ -164,7 +164,7 @@ def map_data(
 
 def filter_data(example):
     neg_ids = example["neg_ids"]
-    if len(neg_ids) < 8:
+    if len(neg_ids) < 16:
         return False
     pos_ids = example["pos_ids"]
     if len(pos_ids) == 0:
