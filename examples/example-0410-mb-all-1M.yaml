@@ -1,0 +1,120 @@
+# Example configuration for YART (Your Another Reranker Trainer)
+
+model_args:
+  model_name_or_path: "sbintuitions/modernbert-ja-30m"
+  classifier_dropout: 0.0
+  trust_remote_code: true
+
+data_args:
+  train_data:
+    -
+      dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
+      dataset_options:
+        jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/hq/train/"
+        jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_hq/dataset/production/"
+        train_size: 1000000
+        test_size: 1000
+        max_length: 512
+        pick_top_100: 7
+        slice_top_100_k: 50
+    - 
+      dataset_class: yart.custom_dataset.hpprc_emb_scores.HpprcEmbScoresDataset
+      train_data:
+        - 
+          subset: auto-wiki-qa
+          n: 300000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: jsquad
+          # n: 10000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: jaquad
+          # n: 10000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: auto-wiki-qa-nemotron
+          # n: 40000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: quiz-works
+          target_score_keys: ["ruri-reranker-large"]
+          aug_factor: 3
+        - subset: quiz-no-mori
+          target_score_keys: ["ruri-reranker-large"]
+          aug_factor: 3
+        - subset: baobab-wiki-retrieval
+          aug_factor: 3
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: mkqa
+          target_score_keys: ["ruri-reranker-large"]
+        # - subset: mmarco
+        #   target_score_keys: ["ruri-reranker-large"]
+        - aug_factor: 20
+          subset: miracl
+          target_score_keys: ["ruri-reranker-large"]
+        - aug_factor: 20
+          subset: jqara
+          target_score_keys: ["ruri-reranker-large"]
+        - aug_factor: 20
+          subset: mr-tydi
+          target_score_keys: ["ruri-reranker-large"]
+    -
+      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+      dataset_options:
+        dataset_name: msmarco-ja
+        hard_positives: true
+        target_model_name: "japanese-splade-base-v1_5"
+    -
+      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+      dataset_options:
+        hard_positives: true
+        target_model_name: "japanese-splade-base-v1_5"
+    -
+      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+      dataset_options:
+        dataset_name: mqa
+        hard_positives: false
+        target_model_name: "japanese-splade-base-v1_5"
+    -
+      dataset_class: yart.custom_dataset.mmarco.MMarcoHardNegatives
+      train_data:
+        reranker: "bge-reranker-v2-m3"
+        lang: "english"
+
+training_args:
+  output_dir: "./outputs/reranker-modernbert-ja-30m-all-1M"
+  overwrite_output_dir: true
+  
+  # Training parameters
+  learning_rate: 5.0e-5
+  per_device_train_batch_size: 16
+  gradient_accumulation_steps: 32
+  train_group_size: 16
+  max_grad_norm: 0.3
+  
+  # Optimizer and scheduler
+  weight_decay: 0.01
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+  
+  # Loss function
+  loss_name: "bce_with_logits"  # Options: cross_entropy, mse, margin_ranking_loss
+  
+  # Logging and saving
+  logging_steps: 10 # debug
+  save_steps: 100000  # Set to a large number to disable intermediate saving
+  save_total_limit: 2
+  
+  # Mixed precision
+  fp16: false
+  bf16: true
+  
+  # Other settings
+  dataloader_num_workers: 8
+  load_best_model_at_end: false
+  num_train_epochs: 1
+  
+  # Reporting
+  report_to: ["wandb"]
+  
+run_args:
+  debug: false
+  output_prefix: ""
+  remove_checkpoints: true
