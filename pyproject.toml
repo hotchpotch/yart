@@ -1,0 +1,24 @@
+[project]
+name = "yart"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "accelerate>=1.6.0",
+    "datasets>=3.5.0",
+    "einops>=0.8.1",
+    "flash-attn>=2.7.4.post1",
+    "joblib>=1.4.2",
+    "numpy>=2.2.4",
+    "pyyaml>=6.0.2",
+    "sentence-transformers>=4.0.2",
+    "torch>=2.6.0",
+    "transformers~=4.50.1",
+    "wandb>=0.19.9",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+]
