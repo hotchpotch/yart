@@ -3,7 +3,7 @@ name = "yart"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "accelerate>=1.6.0",
     "datasets>=3.5.0",
