@@ -4,7 +4,7 @@ Arguments module for YART.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from transformers import TrainingArguments
 

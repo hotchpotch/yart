@@ -1,9 +1,9 @@
 # Example configuration for YART (Your Another Reranker Trainer)
 
 model_args:
-  model_name_or_path: "hotchpotch/mMiniLMv2-L6-H384"
+  model_name_or_path: "sbintuitions/modernbert-ja-30m"
   classifier_dropout: 0.0
-  trust_remote_code: false
+  trust_remote_code: true
 
 data_args:
   train_data:
@@ -15,15 +15,40 @@ data_args:
         train_size: 100000
         test_size: 1000
         max_length: 512
-        pick_top_100: 12
-        slice_top_100_k: 20
+        pick_top_100: 7
+        slice_top_100_k: 50
+    - 
+      dataset_class: yart.custom_dataset.hpprc_emb_scores.HpprcEmbScoresDataset
+      train_data:
+        - 
+          subset: auto-wiki-qa
+          n: 10000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: jsquad
+          n: 10000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: jaquad
+          n: 10000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: auto-wiki-qa-nemotron
+          n: 40000
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: quiz-works
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: quiz-no-mori
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: baobab-wiki-retrieval
+          aug_factor: 3
+          target_score_keys: ["ruri-reranker-large"]
+        - subset: mkqa
+          target_score_keys: ["ruri-reranker-large"]
 
 training_args:
-  output_dir: "./outputs/reranker-model-example-2"
+  output_dir: "./outputs/reranker-modernbert-ja-30m-emb"
   overwrite_output_dir: true
   
   # Training parameters
-  learning_rate: 5.0e-4
+  learning_rate: 5.0e-5
   per_device_train_batch_size: 16
   gradient_accumulation_steps: 32
   train_group_size: 16

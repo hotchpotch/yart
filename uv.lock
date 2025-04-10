@@ -1270,6 +1270,12 @@ wheels = [
 ]
 
 [[package]]
+name = "sentencepiece"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/d2/b9c7ca067c26d8ff085d252c89b5f69609ca93fb85a00ede95f4857865d4/sentencepiece-0.2.0.tar.gz", hash = "sha256:a52c19171daaf2e697dc6cbe67684e0fa341b1248966f6aebb541de654d15843", size = 2632106 }
+
+[[package]]
 name = "sentry-sdk"
 version = "2.25.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1639,6 +1645,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pyyaml" },
     { name = "sentence-transformers" },
+    { name = "sentencepiece" },
     { name = "torch" },
     { name = "transformers" },
     { name = "wandb" },
@@ -1659,6 +1666,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2.4" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "sentence-transformers", specifier = ">=4.0.2" },
+    { name = "sentencepiece", specifier = ">=0.2.0" },
     { name = "torch", specifier = ">=2.6.0" },
     { name = "transformers", specifier = "~=4.50.1" },
     { name = "wandb", specifier = ">=0.19.9" },
