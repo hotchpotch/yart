@@ -8,8 +8,7 @@ import logging
 import os
 
 import wandb
-
-from yart.data import GroupCollator, TrainDatasetForCE
+from yart.data import GroupCollator, create_dateset_from_args
 from yart.losses import get_loss_fn
 from yart.trainer import CrossEncoderModel, RankerTrainer
 from yart.utils import (
@@ -110,11 +109,9 @@ def main() -> None:
     model, tokenizer = load_model_and_tokenizer(model_args, training_args)
 
     # Create dataset
-    train_dataset = TrainDatasetForCE(
+    train_dataset = create_dateset_from_args(
         data_args,
         tokenizer,
-        train_group_size=training_args.train_group_size,
-        neg_shuffle=training_args.neg_shuffle,
     )
 
     # Create loss function

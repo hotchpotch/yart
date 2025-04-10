@@ -7,11 +7,11 @@ import logging
 import math
 import random
 import warnings
+from copy import deepcopy
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import List, Type, cast
 
 import torch
-import torch.utils.data
 from datasets import Dataset, concatenate_datasets, load_dataset, load_from_disk
 from torch.utils.data import Dataset as TorchDataset
 from transformers import (
@@ -174,7 +174,7 @@ class GroupCollator(DataCollatorWithPadding):
         return super().__call__(features)  # type: ignore
 
 
-def detect_dataset_class(dataset_path: str) -> Type[DatasetForCrossEncoder]:
+def detect_dataset_klass(dataset_path: str) -> Type[DatasetForCrossEncoder]:
     """
     Dynamically import and return a dataset class from a path.
     """
@@ -186,30 +186,35 @@ def detect_dataset_class(dataset_path: str) -> Type[DatasetForCrossEncoder]:
     return dataset_class
 
 
-def create_dataset_from_args(
-    args: DataArguments,
-    tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast,
-    train_group_size: int = 16,
-    neg_shuffle: bool = False,
+def create_dateset_from_args(
+    args: DataArguments, tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast
 ) -> DatasetForCrossEncoder:
-    """
-    Create a dataset from arguments.
-    """
     train_data = args.train_data
     if isinstance(train_data, str):
-        # Simple case - just a dataset path
-        return TrainDatasetForCE(
-            args, tokenizer, train_group_size=train_group_size, neg_shuffle=neg_shuffle
-        )
-    elif isinstance(train_data, dict):
-        # Custom dataset with specified class
-        dataset_class_name = train_data.get("dataset_class")
-        if not dataset_class_name:
-            raise ValueError(
-                f"dataset_class is required for dict train_data: {train_data}"
-            )
+        target_ds = DatasetForCrossEncoder(args, tokenizer)
+    elif isinstance(train_data, list):
+        target_ds_list = []
+        for target_train_data in train_data:
+            dataset_class_args = deepcopy(args)
+            if isinstance(target_train_data, str):
+                dataset_class_args.train_data = target_train_data
+                target_ds_list.append(
+                    DatasetForCrossEncoder(dataset_class_args, tokenizer)
+                )
+            elif isinstance(target_train_data, dict):
+                dataset_class_name = target_train_data.get("dataset_class")
+                dataset_options = target_train_data.get("dataset_options", {})
+                # merge dataset_options
+                dataset_class_args.dataset_options.update(dataset_options)
 
-        dataset_class = detect_dataset_class(dataset_class_name)
-        return dataset_class(args, tokenizer)
-    else:
-        raise ValueError(f"Unsupported train_data type: {type(train_data)}")
+                if not dataset_class_name:
+                    raise ValueError(f"dataset_class is required, {target_train_data}")
+                dataset_class_train_data = target_train_data.get("train_data")
+                if dataset_class_train_data:
+                    dataset_class_args.train_data = dataset_class_train_data
+                dataset_klass = detect_dataset_klass(dataset_class_name)
+                target_ds_list.append(dataset_klass(dataset_class_args, tokenizer))
+            else:
+                raise ValueError(f"Invalid type {target_train_data}")
+        target_ds = torch.utils.data.ConcatDataset(target_ds_list)
+    return target_ds  # type: ignore

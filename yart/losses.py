@@ -3,7 +3,7 @@ YART: Your Another Reranker Trainer
 Loss function implementations for cross-encoder training.
 """
 
-from typing import Dict, Literal, Type
+from typing import Dict, Type
 
 import torch
 import torch.nn as nn

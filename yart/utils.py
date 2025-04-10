@@ -156,7 +156,7 @@ def load_model_and_tokenizer(
         "classifier_dropout": model_args.classifier_dropout,
     }
 
-    if not model_args.config_name:
+    if not model_args.model_name_or_path:
         raise ValueError("Either model_name_or_path or config_name must be provided.")
 
     model = AutoModelForSequenceClassification.from_pretrained(
