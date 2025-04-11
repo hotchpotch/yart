@@ -1,5 +1,5 @@
 # Example configuration for YART (Your Another Reranker Trainer)
-# all + no-hq1M, bs1024
+# all + hq1M, bs1024, from 315
 
 model_args:
   model_name_or_path: "sbintuitions/modernbert-ja-30m"
@@ -11,8 +11,8 @@ data_args:
     -
       dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
       dataset_options:
-        jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/small_tokens_cleaned/train/"
-        jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs/dataset/production/"
+        jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/hq/train/"
+        jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_hq/dataset/production/"
         train_size: 1000000
         test_size: 1000
         max_length: 512
