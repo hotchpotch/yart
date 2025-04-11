@@ -23,7 +23,7 @@ data_args:
       train_data:
         - 
           subset: auto-wiki-qa
-          n: 1500000
+          n: 2
           target_score_keys: ["ruri-reranker-large"]
         - subset: jsquad
           aug_factor: 5
