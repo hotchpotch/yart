@@ -8,22 +8,22 @@ model_args:
 
 data_args:
   train_data:
-    -
-      dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
-      dataset_options:
-        jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/small_tokens_cleaned/train/"
-        jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs/dataset/production/"
-        train_size: 5000000
-        test_size: 1000
-        max_length: 512
-        pick_top_100: 3
-        slice_top_100_k: 50
+    # -
+    #   dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
+    #   dataset_options:
+    #     jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/small_tokens_cleaned/train/"
+    #     jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs/dataset/production/"
+    #     train_size: 5000000
+    #     test_size: 1000
+    #     max_length: 512
+    #     pick_top_100: 3
+    #     slice_top_100_k: 50
     - 
       dataset_class: yart.custom_dataset.hpprc_emb_scores.HpprcEmbScoresDataset
       train_data:
         - 
           subset: auto-wiki-qa
-          n: 2 # !!!
+          n: 300000
           target_score_keys: ["ruri-reranker-large"]
         - subset: jsquad
           aug_factor: 5
@@ -82,7 +82,7 @@ data_args:
         lang: "english"
 
 training_args:
-  output_dir: "./outputs/exp317"
+  output_dir: "./outputs/exp320"
   overwrite_output_dir: true
   
   # Training parameters
