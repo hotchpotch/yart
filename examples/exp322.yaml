@@ -1,5 +1,5 @@
 # Example configuration for YART (Your Another Reranker Trainer)
-# msmarco-ja, bce
+# msmarco-ja, bce, 速度テスト用
 model_args:
   model_name_or_path: "sbintuitions/modernbert-ja-30m"
   classifier_dropout: 0.0
@@ -26,7 +26,7 @@ data_args:
 
 training_args:
   # output_dir: "./outputs/reranker-modernbert-ja-30m-500k-bce"
-  output_dir: "./outputs/exp314"
+  output_dir: "./outputs/exp322"
   overwrite_output_dir: true
   
   # Training parameters
