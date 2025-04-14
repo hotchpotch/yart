@@ -6,6 +6,10 @@ Main script for training cross-encoder rankers.
 import argparse
 import logging
 import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.absolute()))  # noqa: F821
 
 import wandb
 from yart.data import GroupCollator, create_dateset_from_args
@@ -22,12 +26,19 @@ from yart.utils import (
 )
 
 logger = logging.getLogger(__name__)
+# Set up logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO,
+)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train a cross-encoder ranker")
     parser.add_argument(
         "--config",
+        "-c",  # Added short form -c
         type=str,
         required=True,
         help="Path to YAML config file",
@@ -51,7 +62,6 @@ def main() -> None:
 
     # Setup logging
     setup_logging(args.verbose)
-
     # Load and parse configuration
     config = load_config_from_yaml(args.config)
     model_args, data_args, training_args, run_args = parse_config_to_args(config)
@@ -77,10 +87,18 @@ def main() -> None:
     elif run_args.output_prefix and not training_args.output_dir:
         training_args.output_dir = run_args.output_prefix
 
-    output_dir = training_args.output_dir
-    if not output_dir:
-        raise ValueError("Output directory must be specified")
+    # If output_dir is not specified, create it based on config filename
+    if not training_args.output_dir:
+        # Extract experiment name from config filename (e.g., 'exp303' from 'exp303.yaml')
+        config_basename = os.path.basename(args.config)
+        experiment_name = os.path.splitext(config_basename)[0]  # Remove file extension
+        training_args.output_dir = os.path.join("./outputs", experiment_name)
+        # log message
+        logger.info(
+            f"Output directory not specified. Using -> {training_args.output_dir}"
+        )
 
+    output_dir = training_args.output_dir
     logger.info(f"Output directory: {output_dir}")
 
     # Set seed for reproducibility

@@ -64,6 +64,12 @@ class RankerTrainingArguments(TrainingArguments):
     disable_tqdm: bool = field(
         default=False, metadata={"help": "Disable tqdm progress bar"}
     )
+    output_dir: str = field(
+        default="",
+        metadata={
+            "help": "The output directory where the model predictions and checkpoints will be written."
+        },
+    )
 
 
 @dataclass
