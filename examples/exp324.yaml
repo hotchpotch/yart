@@ -1,7 +1,7 @@
 # Example configuration for YART (Your Another Reranker Trainer)
-# msmarco-ja, bce, 速度テスト用, bs=32
+# msmarco-ja, bce, mMiniLM, bs=24
 model_args:
-  model_name_or_path: "sbintuitions/modernbert-ja-30m"
+  model_name_or_path: "hotchpotch/mMiniLMv2-L6-H384"
   classifier_dropout: 0.0
   trust_remote_code: true
 
@@ -26,13 +26,13 @@ data_args:
 
 training_args:
   # output_dir: "./outputs/reranker-modernbert-ja-30m-500k-bce"
-  output_dir: "./outputs/exp323"
+  output_dir: "./outputs/exp324"
   overwrite_output_dir: true
   
   # Training parameters
-  learning_rate: 5.0e-5
-  per_device_train_batch_size: 32
-  gradient_accumulation_steps: 16
+  learning_rate: 5.0e-4
+  per_device_train_batch_size: 24
+  gradient_accumulation_steps: 21
   train_group_size: 16
   max_grad_norm: 0.3
   
