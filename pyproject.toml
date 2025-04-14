@@ -13,10 +13,10 @@ dependencies = [
     "pyyaml>=6.0.2",
     "sentence-transformers>=4.0.2",
     "sentencepiece>=0.2.0",
-    "torch==2.7.0",
-    "torchvision",
-    "torchaudio",
-    "pytorch-triton",
+    "torch==2.8.0.dev20250412+cu128",
+    "torchvision==0.22.0.dev20250412+cu128",
+    "torchaudio==2.6.0.dev20250412+cu128",
+    "pytorch-triton==3.3.0+git96316ce5; sys_platform == 'linux'",
     "transformers~=4.50.1",
     "wandb>=0.19.9",
     "hatchling>=1.27.0",
@@ -33,20 +33,24 @@ packages = ["yart"]
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-2-7" },
+  { index = "pytorch-nightly" },
 ]
 torchvision = [
-  { index = "pytorch-2-7" },
+  { index = "pytorch-nightly" },
 ]
 torchaudio = [
-  { index = "pytorch-2-7" },
+  { index = "pytorch-nightly" },
 ]
 pytorch-triton = [
-  { index = "pytorch-2-7" },
+  { index = "pytorch-nightly" },
 ]
 
 [[tool.uv.index]]
-name = "pytorch-2-7"
-url = "https://download.pytorch.org/whl/test/cu128"
+name = "pytorch-nightly"
+url = "https://download.pytorch.org/whl/nightly/cu128"
 explicit = true
+
+[tool.uv]
+find-links = ["https://download.pytorch.org/whl/nightly/cu128"]
+# prerelease = "allow"
 
