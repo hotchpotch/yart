@@ -2,7 +2,7 @@
 # all + no-hq5M, bs32
 
 model_args:
-  model_name_or_path: "sbintuitions/modernbert-ja-30m"
+  model_name_or_path: "cl-nagoya/ruri-v3-pt-30m"
   classifier_dropout: 0.0
   trust_remote_code: true
 
