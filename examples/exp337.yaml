@@ -1,5 +1,4 @@
 # Example configuration for YART (Your Another Reranker Trainer)
-# all + no-hq5M, bs32
 
 model_args:
   model_name_or_path: "hotchpotch/ruri-v3-pt-30m-layer_0_2_4"
