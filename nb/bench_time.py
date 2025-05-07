@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import csv
 import gc
 import sys
 import time
@@ -11,7 +12,7 @@ from sentence_transformers import CrossEncoder
 
 # モデルリストとそれぞれに適したバッチサイズ（BS）のマッピング
 MODEL_BS_PAIRS = [
-    {"model": "hotchpotch/japanese-reranker-tiny-v2", "batch_size": 4096},
+    {"model": "hotchpotch/japanese-reranker-tiny-v2", "batch_size": 2048},
     {"model": "hotchpotch/japanese-reranker-xsmall-v2", "batch_size": 2048},
     {
         "model": "hotchpotch/japanese-reranker-cross-encoder-xsmall-v1",
@@ -79,8 +80,14 @@ def benchmark_model(model_name, batch_size=1024):
     }
 
 
-def benchmark_with_dataset(model_name, batch_size=1024):
-    """実際のデータセットを使用してベンチマークを実行する関数"""
+def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None):
+    """実際のデータセットを使用してベンチマークを実行する関数
+
+    Args:
+        model_name (str): ベンチマークするモデルの名前
+        batch_size (int): バッチサイズ
+        num_samples (int, optional): データセットから使用するサンプル数。Noneの場合は全件使用
+    """
     print(f"データセットを使用したベンチマーク開始: {model_name}")
 
     # モデルをロード
@@ -97,54 +104,124 @@ def benchmark_with_dataset(model_name, batch_size=1024):
     queries = ds["anc"]
     passages = ds["pos"]
 
-    # 全件使用
+    # サンプル数の指定があれば制限、なければ全件使用
+    if num_samples is not None:
+        print(f"{model_name}: {num_samples}サンプルのみ使用")
+        queries = queries[:num_samples]
+        passages = passages[:num_samples]
+    else:
+        print(f"{model_name}: 全サンプル使用 ({len(queries)}件)")
+
+    # ペア作成
     pairs = [(query, passage) for query, passage in zip(queries, passages)]
 
-    # ウォームアップ実行
-    small_batch = pairs[: min(10, len(pairs))]
-    model.predict(
-        small_batch,
-        batch_size=batch_size,
-        show_progress_bar=False,
-    )
+    # トークナイザー事前処理
+    print(f"{model_name}: トークナイザー事前処理開始...")
+    features = model.tokenize(pairs)
+    print(f"{model_name}: トークナイザー事前処理完了")
 
-    # 本番ベンチマーク
+    # ウォームアップ実行（小さいバッチで）
+    small_batch = {k: v[: min(10, len(pairs))] for k, v in features.items()}
+    model.model(**small_batch)
+
+    # 推論のみのベンチマーク
+    print(f"{model_name}: 推論処理のみのベンチマーク開始")
     start_time = time.time()
-    model.predict(
-        pairs,
-        batch_size=batch_size,
-        show_progress_bar=True,
-    )
+
+    # batchごとに処理
+    batch_size = min(batch_size, len(pairs))
+    total_samples = len(pairs)
+
+    for start_idx in range(0, total_samples, batch_size):
+        end_idx = min(start_idx + batch_size, total_samples)
+        batch_features = {k: v[start_idx:end_idx] for k, v in features.items()}
+
+        # バッチ処理を実行（推論のみ）
+        with torch.no_grad():
+            model.model(**batch_features)
+
     end_time = time.time()
-    elapsed_time = end_time - start_time
+    inference_time = end_time - start_time
 
     # メモリ解放
-    del model
+    del model, features
     gc.collect()
     torch.cuda.empty_cache() if torch.cuda.is_available() else None
 
     print(
-        f"完了: {model_name}, 処理時間: {elapsed_time:.4f}秒 (データセット: {len(pairs)}ペア)"
+        f"完了: {model_name}, 推論処理時間: {inference_time:.4f}秒 (データセット: {len(pairs)}ペア)"
     )
     return {
         "model_name": model_name,
-        "time_seconds": elapsed_time,
+        "batch_size": batch_size,
+        "time_seconds": inference_time,
     }
 
 
-def main():
+# 不要な関数を削除
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="日本語リランカーモデルのベンチマーク")
+    parser.add_argument(
+        "-n",
+        "--num_samples",
+        type=int,
+        default=None,
+        help="データセットから使用するサンプル数（指定なしの場合は全件使用）",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        help="結果を出力するCSVファイル（指定なしの場合は標準出力のみ）",
+    )
+    parser.add_argument(
+        "-m",
+        "--models",
+        nargs="+",
+        help="ベンチマークするモデル名（指定なしの場合は全モデル実行）",
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="詳細な実行情報を表示"
+    )
+
+    args = parser.parse_args()
+
+    # 引数からnum_samplesを取得
+    num_samples = args.num_samples
+    output_file = args.output
+    specified_models = args.models
+
     # データセットでのベンチマーク結果を格納するリスト
     results = []
 
+    # モデル指定があれば、該当するモデルだけをフィルタリング
+    model_pairs_to_run = MODEL_BS_PAIRS
+    if specified_models:
+        model_pairs_to_run = [
+            model_data
+            for model_data in MODEL_BS_PAIRS
+            if model_data["model"] in specified_models
+        ]
+        if not model_pairs_to_run:
+            print(
+                f"エラー: 指定されたモデル {specified_models} は定義されたモデルリストに含まれていません"
+            )
+            sys.exit(1)
+        print(f"指定されたモデルのみ実行: {[m['model'] for m in model_pairs_to_run]}")
+
     # 各モデルをペアで定義されたバッチサイズでベンチマーク
-    for model_data in MODEL_BS_PAIRS:
+    for model_data in model_pairs_to_run:
         model_name = model_data["model"]
         batch_size = model_data["batch_size"]
 
         try:
-            # データセットでベンチマーク実行（全件、モデル固有のバッチサイズ使用）
+            # データセットでベンチマーク実行（指定されたサンプル数、モデル固有のバッチサイズ使用）
             print(f"モデル: {model_name}, バッチサイズ: {batch_size}")
-            result = benchmark_with_dataset(model_name, batch_size)
+            result = benchmark_with_dataset(model_name, batch_size, num_samples)
             result["batch_size"] = batch_size  # バッチサイズも結果に含める
             results.append(result)
         except Exception as e:
@@ -164,6 +241,13 @@ def main():
             f"{result['model_name']},{result['batch_size']},{result['time_seconds']:.6f}"
         )
 
+    # 出力ファイルが指定されている場合はCSVファイルにも保存
+    if output_file:
+        with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
+            fieldnames = ["model_name", "batch_size", "time_seconds"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-if __name__ == "__main__":
-    main()
+            writer.writeheader()
+            for result in results:
+                writer.writerow(result)
+        print(f"ベンチマーク結果が {output_file} に保存されました")
