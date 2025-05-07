@@ -196,7 +196,7 @@ def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None):
             batch_queries,
             batch_passages,
             padding=True,
-            truncation=True,
+            truncation="only_second",  # 'only_first'の代わりに'only_second'を使用
             max_length=512,
             return_tensors="pt",
         )
@@ -214,7 +214,7 @@ def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None):
         queries[:warmup_size],
         passages[:warmup_size],
         padding=True,
-        truncation=True,
+        truncation="only_second",  # 'only_first'の代わりに'only_second'を使用
         max_length=512,
         return_tensors="pt",
     )
