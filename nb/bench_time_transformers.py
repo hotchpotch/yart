@@ -94,6 +94,14 @@ def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None, device
         model.half()
         print("半精度（FP16）で実行します")
 
+    # cpu の時は bs = 128 で実行する
+    if device == "cpu":
+        batch_size = 128
+        print("CPUモードのため、バッチサイズを128に設定")
+    elif device == "mps":
+        batch_size = min(batch_size, 1024)
+        print("MPSモードのため、バッチサイズを最大1024に設定 -> ", batch_size)
+
     # データセットのロード
     try:
         print("データセットをロード中...")
