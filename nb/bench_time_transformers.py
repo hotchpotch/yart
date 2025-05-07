@@ -35,29 +35,62 @@ MODEL_BS_PAIRS = [
 ]
 
 
-def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None):
+def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None, device=None):
     """実際のデータセットを使用してベンチマークを実行する関数
 
     Args:
         model_name (str): ベンチマークするモデルの名前
         batch_size (int): バッチサイズ
         num_samples (int, optional): データセットから使用するサンプル数。Noneの場合は全件使用
+        device (str, optional): 使用するデバイス。'cpu', 'cuda', 'mps'のいずれか。Noneの場合は自動検出
     """
     print(f"データセットを使用したベンチマーク開始: {model_name}")
 
     # デバイスの設定
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if device is None:
+        # デバイスの自動検出
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif hasattr(torch, "mps") and torch.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
     print(f"使用デバイス: {device}")
 
     # モデルとトークナイザーをロード
     print(f"モデルとトークナイザーをロード中: {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+
+    # デバイスに応じてモデルのロードオプションを変更
+    if device == "cpu":
+        # CPUの場合、Tritonを使用しない設定で実行
+        try:
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_name,
+                use_flash_attention_2=False,
+                torch_dtype=torch.float32,
+                device_map="cpu",
+                attn_implementation="eager",  # Tritonを使用しない実装
+                # low_cpu_mem_usage=True,  # CPUメモリ使用量を抑える
+            )
+            print("CPUモードで実行: Triton無効, eager実装, float32使用")
+        except Exception as e:
+            print(f"拡張オプションでのロードに失敗しました: {e}")
+            print("基本オプションでロードを試みます")
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_name, use_flash_attention_2=False, torch_dtype=torch.float32
+            )
+            print("CPUモードで実行: Flash Attention 2無効, float32使用")
+    else:
+        # GPUまたはMPSの場合、デフォルト設定を使用
+        model = AutoModelForSequenceClassification.from_pretrained(model_name)
+
     model.to(device)
     model.eval()
 
-    # GPUが利用可能な場合は半精度で実行
-    if device == "cuda":
+    # CUDA（GPU）またはMPS（Apple Silicon）の場合は半精度で実行
+    if device in ["cuda", "mps"]:
         model.half()
         print("半精度（FP16）で実行します")
 
@@ -308,15 +341,24 @@ if __name__ == "__main__":
         help="ベンチマークするモデル名（指定なしの場合は全モデル実行）",
     )
     parser.add_argument(
+        "-d",
+        "--device",
+        type=str,
+        choices=["cpu", "cuda", "mps"],
+        default=None,
+        help="使用するデバイス（cpu, cuda, mps）。指定なしの場合は自動検出",
+    )
+    parser.add_argument(
         "-v", "--verbose", action="store_true", help="詳細な実行情報を表示"
     )
 
     args = parser.parse_args()
 
-    # 引数からnum_samplesを取得
+    # 引数からパラメータを取得
     num_samples = args.num_samples
     output_file = args.output
     specified_models = args.models
+    device = args.device
 
     # データセットでのベンチマーク結果を格納するリスト
     results = []
@@ -342,9 +384,9 @@ if __name__ == "__main__":
         batch_size = model_data["batch_size"]
 
         try:
-            # データセットでベンチマーク実行（指定されたサンプル数、モデル固有のバッチサイズ使用）
+            # データセットでベンチマーク実行（指定されたサンプル数、モデル固有のバッチサイズ、指定されたデバイス使用）
             print(f"モデル: {model_name}, バッチサイズ: {batch_size}")
-            result = benchmark_with_dataset(model_name, batch_size, num_samples)
+            result = benchmark_with_dataset(model_name, batch_size, num_samples, device)
             result["batch_size"] = batch_size  # バッチサイズも結果に含める
             results.append(result)
         except Exception as e:
