@@ -217,7 +217,11 @@ def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None, device
     # トークナイズ処理
     # バッチごとにトークナイズして、メモリ効率を向上
     tokenized_inputs = []
-    tokenize_batch_size = 1000  # トークナイズのバッチサイズ
+    # トークナイズのバッチサイズをモデルのバッチサイズに合わせる（ただし、メモリ消費を抑えるため上限を設ける）
+    tokenize_batch_size = min(
+        batch_size, 40000
+    )  # モデルのバッチサイズを使用（上限40000）
+    print(f"トークナイズバッチサイズ: {tokenize_batch_size}")
 
     for i in tqdm(range(0, total_samples, tokenize_batch_size), desc="トークナイズ中"):
         batch_end = min(i + tokenize_batch_size, total_samples)
