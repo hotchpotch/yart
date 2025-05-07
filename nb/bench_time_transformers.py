@@ -14,11 +14,11 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 # モデルリストとそれぞれに適したバッチサイズ（BS）のマッピング
 MODEL_BS_PAIRS = [
-    {"model": "hotchpotch/japanese-reranker-tiny-v2", "batch_size": 4096 * 4},
-    {"model": "hotchpotch/japanese-reranker-xsmall-v2", "batch_size": 4096 * 4},
+    {"model": "hotchpotch/japanese-reranker-tiny-v2", "batch_size": 4096 * 3},
+    {"model": "hotchpotch/japanese-reranker-xsmall-v2", "batch_size": 4096 * 2},
     {
         "model": "hotchpotch/japanese-reranker-cross-encoder-xsmall-v1",
-        "batch_size": 4096 * 4,
+        "batch_size": 4096,
     },
     {
         "model": "hotchpotch/japanese-reranker-cross-encoder-small-v1",
