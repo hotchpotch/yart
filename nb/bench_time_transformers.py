@@ -64,8 +64,12 @@ def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None, device
 
     # デバイスに応じてモデルのロードオプションを変更
     if device == "cpu":
-        # CPUの場合、Tritonを使用しない設定で実行
         try:
+            model = AutoModelForSequenceClassification.from_pretrained(
+                model_name, use_flash_attention_2=False, torch_dtype=torch.float32
+            )
+            print("CPUモードで実行: Flash Attention 2無効, float32使用")
+        except Exception as e:
             model = AutoModelForSequenceClassification.from_pretrained(
                 model_name,
                 use_flash_attention_2=False,
@@ -75,13 +79,7 @@ def benchmark_with_dataset(model_name, batch_size=1024, num_samples=None, device
                 # low_cpu_mem_usage=True,  # CPUメモリ使用量を抑える
             )
             print("CPUモードで実行: Triton無効, eager実装, float32使用")
-        except Exception as e:
-            print(f"拡張オプションでのロードに失敗しました: {e}")
-            print("基本オプションでロードを試みます")
-            model = AutoModelForSequenceClassification.from_pretrained(
-                model_name, use_flash_attention_2=False, torch_dtype=torch.float32
-            )
-            print("CPUモードで実行: Flash Attention 2無効, float32使用")
+
     else:
         # GPUまたはMPSの場合、デフォルト設定を使用
         model = AutoModelForSequenceClassification.from_pretrained(model_name)
