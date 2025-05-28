@@ -118,7 +118,7 @@ def main() -> None:
             name=os.path.basename(output_dir),
         )
     else:
-        training_args.report_to = ["none"]
+        training_args.report_to = []
 
     # Log arguments
     logger.info(f"Model arguments: {model_args}")

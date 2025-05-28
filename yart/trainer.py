@@ -60,11 +60,9 @@ class CrossEncoderModel(nn.Module):
         if self.training:
             try:
                 # Reshape for group-wise loss computation
-                scores = logits.view(
-                    self.per_device_batch_size,
-                    self.train_group_size,
-                )
-                labels = labels.view(self.per_device_batch_size, self.train_group_size)
+                actual_batch_size = logits.size(0) // self.train_group_size
+                scores = logits.view(actual_batch_size, self.train_group_size)
+                labels = labels.view(actual_batch_size, self.train_group_size)
                 loss = self.loss_fn(scores, labels)
             except (RuntimeError, ValueError) as e:
                 # Handle uneven batch sizes (last batch may be smaller)

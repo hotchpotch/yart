@@ -1,4 +1,5 @@
 # Example configuration for YART (Your Another Reranker Trainer)
+# tiny-v2
 
 model_args:
   model_name_or_path: "hotchpotch/ruri-v3-pt-30m-layer_0_2_4"

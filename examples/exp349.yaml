@@ -1,9 +1,7 @@
 # Example configuration for YART (Your Another Reranker Trainer)
-# all + no-hq5M, bs32
-# xsmall-v2
 
 model_args:
-  model_name_or_path: "cl-nagoya/ruri-v3-pt-30m"
+  model_name_or_path: "hotchpotch/modernbert-ja-30m-layer_0"
   classifier_dropout: 0.0
   trust_remote_code: true
 
@@ -14,17 +12,17 @@ data_args:
       dataset_options:
         jlawir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/dataset/20250330/small_tokens_cleaned/train/"
         jlawir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs/dataset/production/"
-        train_size: 5000000
+        train_size: 2000000
         test_size: 1000
         max_length: 512
-        pick_top_100: 3
+        pick_top_100: 2
         slice_top_100_k: 50
     - 
       dataset_class: yart.custom_dataset.hpprc_emb_scores.HpprcEmbScoresDataset
       train_data:
         - 
           subset: auto-wiki-qa
-          n: 300000
+          # n: 300000
           target_score_keys: ["ruri-reranker-large"]
         - subset: jsquad
           aug_factor: 5
