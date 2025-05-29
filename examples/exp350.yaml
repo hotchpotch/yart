@@ -7,6 +7,16 @@ model_args:
 
 data_args:
   train_data:
+    -
+      dataset_class: "yart.custom_dataset.jfwir.JFWIRDataset"
+      dataset_options:
+        jfwir_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/tmp/fineweb-2-edu-japanese-query"
+        jfwir_score_ds_path: "/home/hotchpotch/src/github.com/hotchpotch/lm-trainers/query-gen/japanese-ir-qa-large/hard_negs_20250510/cache/hard_negs_ds/production"
+        train_size: 2000000
+        test_size: 1000
+        max_length: 512
+        neg_th: 0.4
+        pos_th: 0.6
     # -
     #   dataset_class: "yart.custom_dataset.jlawir.JLaWIRDataset"
     #   dataset_options:
@@ -63,22 +73,22 @@ data_args:
     #     dataset_name: msmarco-ja
     #     hard_positives: true
     #     target_model_name: "japanese-splade-base-v1_5"
-    -
-      dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
-      dataset_options:
-        hard_positives: true
-        target_model_name: "japanese-splade-base-v1_5"
+    # -
+    #   dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
+    #   dataset_options:
+    #     hard_positives: true
+    #     target_model_name: "japanese-splade-base-v1_5"
     # -
     #   dataset_class: yart.custom_dataset.japanese_splade_hn_v1.JapaneseSpladeHardNegativesV1
     #   dataset_options:
     #     dataset_name: mqa
     #     hard_positives: false
     #     target_model_name: "japanese-splade-base-v1_5"
-    -
-      dataset_class: yart.custom_dataset.mmarco.MMarcoHardNegatives
-      train_data:
-        reranker: "bge-reranker-v2-m3"
-        lang: "english"
+    # -
+    #   dataset_class: yart.custom_dataset.mmarco.MMarcoHardNegatives
+    #   train_data:
+    #     reranker: "bge-reranker-v2-m3"
+    #     lang: "english"
 
 training_args:
   # output_dir: "./outputs/exp317"
