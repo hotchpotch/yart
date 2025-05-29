@@ -16,6 +16,8 @@ from ..data import DatasetForCrossEncoder
 
 logger = logging.getLogger(__name__)
 
+NUM_PROC = 15
+
 
 class JFWIRDataset(DatasetForCrossEncoder):
     def __init__(
@@ -72,15 +74,13 @@ class JFWIRDataset(DatasetForCrossEncoder):
 
         logger.info(f"Loading jfwir score dataset from: {jfwir_score_ds_path}")
         jfwir_ds_score = cast(HFDataset, datasets.load_from_disk(jfwir_score_ds_path))
-        # もし ['train'] が存在する場合はそれを使用
-        if "train" in jfwir_ds_score:
-            jfwir_ds_score = jfwir_ds_score["train"]
-            # cast
-            jfwir_ds_score = cast(HFDataset, jfwir_ds_score)
+        # logger.info("Loaded jfwir_ds_score", jfwir_ds_score)
+        # # もし ['train'] が存在する場合はそれを使用
+        # if "train" in jfwir_ds_score:
+        #     jfwir_ds_score = jfwir_ds_score["train"]
+        #     # cast
+        #     jfwir_ds_score = cast(HFDataset, jfwir_ds_score)
 
-        print(f"Loaded jfwir_ds: {len(self.jfwir_ds)} examples")
-        jfwir_ds_score = self.filter_scores(jfwir_ds_score)
-        print(f"Filtered jfwir_ds_score: {len(jfwir_ds_score)} examples")
         # shuffle
         jfwir_ds_score = jfwir_ds_score.shuffle(seed=self.random_seed)
 
@@ -89,6 +89,10 @@ class JFWIRDataset(DatasetForCrossEncoder):
             total_size = self.train_size + self.test_size
             logger.info(f"Selecting {total_size} examples from {len(jfwir_ds_score)}")
             jfwir_ds_score = jfwir_ds_score.select(range(total_size))
+
+        print(f"Loaded jfwir_ds: {len(self.jfwir_ds)} examples")
+        jfwir_ds_score = self.filter_scores(jfwir_ds_score)
+        print(f"Filtered jfwir_ds_score: {len(jfwir_ds_score)} examples")
 
         # Split into train/test
         score_dataset_dict = jfwir_ds_score.train_test_split(
@@ -151,8 +155,8 @@ class JFWIRDataset(DatasetForCrossEncoder):
             return True
 
         # Apply the map and filter functions
-        score_dataset = score_dataset.map(neg_map_fn, num_proc=11)
-        score_dataset = score_dataset.filter(filter_fn, num_proc=11)
+        score_dataset = score_dataset.map(neg_map_fn, num_proc=NUM_PROC)
+        score_dataset = score_dataset.filter(filter_fn, num_proc=NUM_PROC)
         return score_dataset
 
     @property
