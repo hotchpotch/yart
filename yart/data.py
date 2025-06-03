@@ -82,6 +82,12 @@ class DatasetForCrossEncoder(TorchDataset):
         """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")  # Suppress warnings
+            if len(query) == 0:
+                logger.warning("Empty query detected")
+                query = "none"
+            if len(document) == 0:
+                logger.warning("Empty document detected")
+                document = "none"
             item = self.tokenizer.encode_plus(
                 query,
                 document,
